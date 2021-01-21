@@ -63,14 +63,17 @@ int main(int argc, char** argv) {
 	TGAImage image(800, 800, TGAImage::RGB);
 
 	modele = new Model("obj/african_head.obj");
-
-	Vertice3 v;
 	
-	for (int i = 0; i < modele->numberOfVertices(); i++) {
-		v = modele->getVerticeAt(i);
-		int x = (v.x) * width / 2. + width/2;
-		int y = (v.y) * height / 2. + height/2;
-		image.set(x, y, white);
+	Face f;
+	
+	for (int i = 0; i < modele->numberOfFaces(); i++) {
+		f = modele->getFaceAt(i);
+		Vertice3 v1 = modele->getVerticeAt(f.v1);
+		Vertice3 v2 = modele->getVerticeAt(f.v2);
+		Vertice3 v3 = modele->getVerticeAt(f.v3);
+		drawLine((v1.x + 1) * width / 2, (v1.y + 1) * height / 2, (v2.x + 1) * width / 2, (v2.y + 1) * height / 2, image, white);
+		drawLine((v2.x + 1) * width / 2, (v2.y + 1) * height / 2, (v3.x + 1) * width / 2, (v3.y + 1) * height / 2, image, white);
+		drawLine((v3.x + 1) * width / 2, (v3.y + 1) * height / 2, (v1.x + 1) * width / 2, (v1.y + 1) * height / 2, image, white);
 	}
 
 	image.flip_vertically();
