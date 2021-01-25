@@ -2,6 +2,7 @@
 #include "model.h"
 #include <string>
 #include <vector>
+#include <cstdlib>
 #include <iostream>
 
 using namespace std;
@@ -19,7 +20,6 @@ Model *modele;
 
 //Affichage d'un segment [(x0,y0) , (x1,y1)] de couleur 'color' sur l'image 'image'
 void drawLine(int x0, int y0, int x1, int y1, TGAImage &image, TGAColor color) {
-	cout << x0 << "-" << y0 << "  " << x1 << "-" << y1 << endl;
 
 	bool steep = false;
 	if (abs(x0 - x1) < abs(y0 - y1)) {
@@ -63,7 +63,9 @@ void drawLine(int x0, int y0, int x1, int y1, TGAImage &image, TGAColor color) {
 }
 
 //Affichage d'une face "face" de couleur 'color' sur l'image 'image'
-void drawFace(Face face, TGAImage &image, TGAColor color) {
+void drawFace(Face face, TGAImage &image) {
+
+	TGAColor randomColor = TGAColor(rand() % 255, rand() % 255, rand() % 255, 255);
 
 	//Pour les 3 côtés de la face
 	for (int j = 0; j < 3; j++) {
@@ -78,7 +80,7 @@ void drawFace(Face face, TGAImage &image, TGAColor color) {
 		int y1 = (v1.coords[1] + 1) * height / 2;
 
 		//On dessine la ligne entre les 2 sommets
-		drawLine(x0, y0, x1, y1, image, color);
+		drawLine(x0, y0, x1, y1, image, randomColor);
 	}
 }
 
@@ -92,7 +94,7 @@ int main(int argc, char** argv) {
 	//Pour chaque face du modèle
 	for (int i = 0; i < modele->numberOfFaces(); i++) {
 		//On dessine la face
-		drawFace(modele->getFaceAt(i), image, white);
+		drawFace(modele->getFaceAt(i), image);
 	}
 
 	image.flip_vertically();
