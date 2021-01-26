@@ -5,7 +5,14 @@
 
 //Structure représentant un sommet
 struct Vertice {
-	float coords[3];
+	union {
+		float coords[3];
+		struct {
+			float x, y, z;
+		};
+	};
+
+	int operator[] (int index) { return coords[index]; }
 };
 
 //Structure représentant une face
