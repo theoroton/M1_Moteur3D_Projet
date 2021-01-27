@@ -3,7 +3,10 @@
 #include <string>
 #include <vector>
 #include <cstdlib>
+#include <algorithm>
 #include <iostream>
+#include <cmath>
+#include <ctgmath>
 
 using namespace std;
 
@@ -13,8 +16,8 @@ const TGAColor red   = TGAColor(255, 0,   0,   255);
 const TGAColor green = TGAColor(0, 128, 0, 255);
 
 //Taille de l'image
-const int width = 200;
-const int height = 200;
+const int width = 800;
+const int height = 800;
 
 //Modèle à afficher
 Model *modele;
@@ -63,46 +66,35 @@ void drawLine(int x0, int y0, int x1, int y1, TGAImage &image, TGAColor color) {
 	}
 }
 
-void drawTopTriangle(Vertice haut, Vertice milieu, Vertice a, TGAImage &image, TGAColor color) {
-	float pas1 = (haut.x - milieu.x) / (haut.y - milieu.y);
-	float pas2 = (haut.x - a.x) / (haut.y - a.y);
+void drawTriangle(Vertice A, Vertice B, Vertice C, TGAImage& image) {
+	TGAColor randomColor = TGAColor(rand() % 255, rand() % 255, rand() % 255, 255);
 
-	float x1 = haut.x;
-	float x2 = haut.x;
+	int xMax = max(A.x, max(B.x, C.x));
+	int xMin = min(A.x, min(B.x, C.x));
+	int yMax = max(A.y, max(B.y, C.y));
+	int yMin = min(A.y, min(B.y, C.y));
 
-	for (int y = haut.y; y >= a.y; y--) {
+	float dACy = C.y - A.y;
+	float dACx = C.x - A.x;
+	float dABy = B.y - A.y;
+	float dABx = B.x - A.x;
 
-		drawLine(x1, y, x2, y, image, color);
-		x1 -= pas1;
-		x2 -= pas2;
+	for (int x = xMin; x <= xMax; x++) {
+
+		for (int y = yMin; y <= yMax; y++) {
+
+			Vertice P = { (float) x,(float) y,0. };
+		
+			float dAPy = P.y - A.y;
+
+			float w1 = (A.x * dACy + dAPy * dACx - P.x * dACy) / (dABy * dACx - dABx * dACy);
+			float w2 = (dAPy - w1 * dABy) / dACy;
+
+			if (w1 >= 0 && w2 >= 0 && (w1 + w2) <= 1) {
+				image.set(x, y, randomColor);
+			}
+		}
 	}
-}
-
-void drawBottomTriangle(Vertice bas, Vertice milieu, Vertice a, TGAImage& image, TGAColor color) {
-	float pas1 = (bas.x - milieu.x) / (bas.y - milieu.y);
-	float pas2 = (bas.x - a.x) / (bas.y - a.y);
-
-	float x1 = bas.x;
-	float x2 = bas.x;;
-
-	for (int y = bas.y; y < a.y; y++) {
-
-		drawLine(x1, y, x2, y, image, color);
-		x1 += pas1;
-		x2 += pas2;
-	}
-}
-
-void drawTriangle(Vertice v0, Vertice v1, Vertice v2, TGAImage& image) {
-	if (v0.y > v1.y) { swap(v0, v1); }
-	if (v1.y > v2.y) { swap(v1, v2); }
-	if (v0.y > v1.y) { swap(v0, v1); }
-
-	Vertice a = { (v2.x + ((float)(v1.y - v2.y) / (float)(v0.y - v2.y)) * (v0.x - v2.x)), v1.y, 0 };
-
-	TGAColor randColor = TGAColor(rand() % 255, rand() % 255, rand() % 255, 255);
-	drawTopTriangle(v2, v1, a, image, randColor);
-	drawBottomTriangle(v0, v1, a, image, randColor);
 }
 
 
@@ -113,10 +105,21 @@ int main(int argc, char** argv) {
 
 	//Création du modèle à afficher
 	modele = new Model("obj/african_head.obj");
-	
-	drawTriangle({ 10,70,0 }, { 50,160,0 }, { 70,80,0 }, image);
-	drawTriangle({ 180,50,0 }, { 150,1,0 }, { 70,180,0 }, image);
-	drawTriangle({ 180,150,0 }, { 120,160,0 }, { 130,180,0 }, image);
+
+	Face f;
+	Vertice sommets[3];
+
+	for (int i = 0; i < modele->numberOfFaces(); i++) {
+		f = modele->getFaceAt(i);
+		
+		for (int j = 0; j < 3; j++) {
+			sommets[j] = modele->getVerticeAt(f.sommets[j]);
+			sommets[j].x = (sommets[j].x + 1) * width / 2;
+			sommets[j].y = (sommets[j].y + 1) * height / 2;
+		}
+
+		drawTriangle(sommets[0], sommets[1], sommets[2], image);
+	}
 
 	image.flip_vertically();
 	image.write_tga_file("output.tga");
