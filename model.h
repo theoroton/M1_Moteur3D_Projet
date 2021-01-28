@@ -2,23 +2,7 @@
 #define __MODEL_H__
 
 #include <vector>
-
-//Structure représentant un sommet
-struct Vertice {
-	union {
-		float coords[3];
-		struct {
-			float x, y, z;
-		};
-	};
-
-	int operator[] (int index) { return coords[index]; }
-};
-
-//Structure représentant une face
-struct Face {
-	int sommets[3];
-};
+#include "structures.h"
 
 class Model {
 
@@ -28,7 +12,7 @@ public:
 	//Renvoie le nombre de sommets
 	int numberOfVertices();
 	//Renvoie le sommet à l'indice "index"
-	Vertice getVerticeAt(int index);
+	Vec getVerticeAt(int index);
 	//Renvoie le nombre de faces
 	int numberOfFaces();
 	//Renvoie la face à l'indice "index"
@@ -36,7 +20,7 @@ public:
 
 private:
 	//Liste des sommets
-	std::vector<Vertice> vertices;
+	std::vector<Vec> vertices;
 	//Liste des faces
 	std::vector<Face> faces;
 };

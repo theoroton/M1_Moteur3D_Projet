@@ -1,5 +1,6 @@
 #include "tgaimage.h"
 #include "model.h"
+#include "structures.h"
 #include <string>
 #include <vector>
 #include <cstdlib>
@@ -66,32 +67,27 @@ void drawLine(int x0, int y0, int x1, int y1, TGAImage &image, TGAColor color) {
 	}
 }
 
-void drawTriangle(Vertice A, Vertice B, Vertice C, TGAImage& image) {
-	TGAColor randomColor = TGAColor(rand() % 255, rand() % 255, rand() % 255, 255);
-
+void drawTriangle(Vec A, Vec B, Vec C, TGAImage &image, TGAColor color) {
 	int xMax = max(A.x, max(B.x, C.x));
 	int xMin = min(A.x, min(B.x, C.x));
 	int yMax = max(A.y, max(B.y, C.y));
 	int yMin = min(A.y, min(B.y, C.y));
 
-	float dACy = C.y - A.y;
-	float dACx = C.x - A.x;
-	float dABy = B.y - A.y;
-	float dABx = B.x - A.x;
+	Vec AB = A - B;
+	Vec AC = A - C;
 
 	for (int x = xMin; x <= xMax; x++) {
 
 		for (int y = yMin; y <= yMax; y++) {
 
-			Vertice P = { (float) x,(float) y,0. };
-		
-			float dAPy = P.y - A.y;
+			Vec P = { (float) x, (float) y, 0. };
+			Vec AP = A - P;
 
-			float w1 = (A.x * dACy + dAPy * dACx - P.x * dACy) / (dABy * dACx - dABx * dACy);
-			float w2 = (dAPy - w1 * dABy) / dACy;
+			float w1 = (A.x * AC.y + AP.y * AC.x - P.x * AC.y) / (AB.y * AC.x - AB.x * AC.y);
+			float w2 = (AP.y - w1 * AB.y) / AC.y;
 
 			if (w1 >= 0 && w2 >= 0 && (w1 + w2) <= 1) {
-				image.set(x, y, randomColor);
+				image.set(x, y, color);
 			}
 		}
 	}
@@ -107,18 +103,30 @@ int main(int argc, char** argv) {
 	modele = new Model("obj/african_head.obj");
 
 	Face f;
-	Vertice sommets[3];
+	TGAColor color;
+	Vec light = { 0,0,-1 };
 
 	for (int i = 0; i < modele->numberOfFaces(); i++) {
 		f = modele->getFaceAt(i);
-		
-		for (int j = 0; j < 3; j++) {
-			sommets[j] = modele->getVerticeAt(f.sommets[j]);
-			sommets[j].x = (sommets[j].x + 1) * width / 2;
-			sommets[j].y = (sommets[j].y + 1) * height / 2;
-		}
 
-		drawTriangle(sommets[0], sommets[1], sommets[2], image);
+		Vec A = modele->getVerticeAt(f.sommets[0]);
+		Vec B = modele->getVerticeAt(f.sommets[1]);
+		Vec C = modele->getVerticeAt(f.sommets[2]);
+
+		Vec normal = ((A - B) ^ (A - C));
+
+		normal.normalize();
+
+		float intensity = -(normal * light);
+
+		if (intensity > 0) {
+			A.toImageSize(width / 2, height / 2);
+			B.toImageSize(width / 2, height / 2);
+			C.toImageSize(width / 2, height / 2);
+
+			color = TGAColor(intensity * 255, intensity * 255, intensity * 255, 255);
+			drawTriangle(A, B, C, image, color);
+		}
 	}
 
 	image.flip_vertically();

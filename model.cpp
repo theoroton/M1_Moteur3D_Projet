@@ -38,7 +38,7 @@ Model::Model(const char *path) {
 		//Si la ligne commence par "v "
 		if (!line.compare(0, 2, "v ")) {
 			//Création d'un objet sommet
-			Vertice v;
+			Vec v;
 
 			//On enlève le premier caractère
 			issLine >> goaway;
@@ -82,7 +82,7 @@ int Model::numberOfVertices() {
 }
 
 //Renvoie le sommet à l'indice "index"
-Vertice Model::getVerticeAt(int index) {
+Vec Model::getVerticeAt(int index) {
 	return vertices[index];
 }
 
