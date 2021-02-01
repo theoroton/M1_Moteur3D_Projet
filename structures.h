@@ -42,8 +42,8 @@ struct Vec {
 	}
 
 	void toImageSize(int width, int height) {
-		x = (x + 1) * width;
-		y = (y + 1) * height;
+		x = int((x + 1.) * width / 2. + .5);
+		y = int((y + 1.) * height / 2. + .5);
 	}
 };
 
