@@ -67,7 +67,7 @@ void drawLine(int x0, int y0, int x1, int y1, TGAImage &image, TGAColor color) {
 	}
 }
 
-void drawTriangle(Vec A, Vec B, Vec C, float **z_buffer, TGAImage &image, TGAColor color) {
+void drawTriangle(Vec A, Vec B, Vec C, Vec *textures, float intensity, float **z_buffer, TGAImage &image, TGAImage &texture) {
 	// Limites du triangle
 	int xMax = max(A.x, max(B.x, C.x));
 	int xMin = min(A.x, min(B.x, C.x));
@@ -92,21 +92,33 @@ void drawTriangle(Vec A, Vec B, Vec C, float **z_buffer, TGAImage &image, TGACol
 			Vec u = Vx ^ Vy;
 
 			// Coordonnées barycentriques
-			float b1 = 1 - (u.x + u.y) / u.z;
-			float b2 = u.y / u.z;
-			float b3 = u.x / u.z;
+			float bary1 = 1 - (u.x + u.y) / u.z;
+			float bary2 = u.y / u.z;
+			float bary3 = u.x / u.z;
 
 			// Si toutes les coordonnées sont positives
-			if (b1 >= 0 && b2 >= 0 && b3 >= 0) {
+			if (bary1 >= 0 && bary2 >= 0 && bary3 >= 0) {
 				// On calcule le z du point P
-				P.z += A.z * b1;
-				P.z += B.z * b2;
-				P.z += C.z * b3;
+				P.z += A.z * bary1;
+				P.z += B.z * bary2;
+				P.z += C.z * bary3;
 
 				// Si le z est supérieur au z enregistré
 				if (P.z > z_buffer[x][y]) {
 					// On enregistre le z
 					z_buffer[x][y] = P.z;
+
+					// Récupération de la texture
+					float u = bary1 * textures[0].x + bary2 * textures[1].x + bary3 * textures[2].x;
+					float v = bary1 * textures[0].y + bary2 * textures[1].y + bary3 * textures[2].y;
+					TGAColor color = texture.get(u * texture.get_width(), v * texture.get_height());
+
+					// Multiplication des composantes
+					color.b = color.b * intensity;
+					color.g = color.g * intensity;
+					color.r = color.r * intensity;
+					color.a = color.a * intensity;
+
 					// On affiche le pixel
 					image.set(x, y, color);
 				}
@@ -118,11 +130,16 @@ void drawTriangle(Vec A, Vec B, Vec C, float **z_buffer, TGAImage &image, TGACol
 
 
 int main(int argc, char** argv) {
-	//Création de l'image
+	// Création de l'image
 	TGAImage image(width, height, TGAImage::RGB);
 
-	//Création du modèle à afficher
-	modele = new Model("obj/african_head.obj");
+	// Création du modèle à afficher
+	modele = new Model("obj/african_head/african_head.obj");
+
+	// Création et récupération de la texture du modèle
+	TGAImage texture;
+	texture.read_tga_file("obj/african_head/african_head_diffuse.tga");
+	texture.flip_vertically();
 
 	Face f;
 	// Couleur
@@ -150,9 +167,9 @@ int main(int argc, char** argv) {
 		f = modele->getFaceAt(i);
 
 		// On récupère les 3 sommets composants la Face
-		Vec A = modele->getVerticeAt(f.sommets[0]);
-		Vec B = modele->getVerticeAt(f.sommets[1]);
-		Vec C = modele->getVerticeAt(f.sommets[2]);
+		Vec A = modele->getVerticeAt(f.a);
+		Vec B = modele->getVerticeAt(f.b);
+		Vec C = modele->getVerticeAt(f.c);
 
 		// On calcule le vecteur normal du triangle
 		Vec normal = ((A - B) ^ (A - C));
@@ -170,10 +187,15 @@ int main(int argc, char** argv) {
 			B.toImageSize(width, height);
 			C.toImageSize(width, height);
 
+			Vec *textures = new Vec[3];
+			for (int j = 0; j < 3; j++) {
+				textures[j] = modele->getTextureAt(f.textures[j]);
+			}
+
 			// On crée la couleur
 			color = TGAColor(intensity * 255, intensity * 255, intensity * 255, 255);
 			// On dessine le triangle correspondant à la Face
-			drawTriangle(A, B, C, z_buffer, image, color);
+			drawTriangle(A, B, C, textures, intensity, z_buffer, image, texture);
 		}
 	}
 	

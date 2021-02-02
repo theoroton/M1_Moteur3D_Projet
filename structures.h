@@ -13,7 +13,6 @@ struct Vec {
 		};
 	};
 
-	int operator[] (int index) { return coords[index]; }
 	Vec operator- (Vec v2) { 
 		return { 
 			v2.x - x, 
@@ -56,7 +55,12 @@ struct Face {
 		};
 	};
 
-	int operator[] (int index) { return sommets[index]; }
+	union {
+		int textures[3];
+		struct {
+			int ta, tb, tc;
+		};
+	};
 };
 
 #endif
