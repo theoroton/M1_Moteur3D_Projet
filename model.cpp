@@ -37,7 +37,7 @@ Model::Model(const char *path) {
 		
 		//Si la ligne commence par "v "
 		if (!line.compare(0, 2, "v ")) {
-			//Création d'un objet sommet
+			//Création d'un sommet
 			Vec v;
 
 			//On enlève le premier caractère
@@ -51,20 +51,37 @@ Model::Model(const char *path) {
 			//On ajoute le sommet à la liste des sommets
 			vertices.push_back(v);
 
+		//Si la ligne commence par "vt "
+		} else if (!line.compare(0, 3, "vt ")) {
+			//Création d'une texture
+			Vec t;
+
+			//On enlève le premier caractère
+			issLine >> goaway >> goaway;
+
+			//On ajoute les coordonnées de la texture
+			for (int i = 0; i < 3; i++) {
+				issLine >> t.coords[i];
+			}
+
+			//On ajoute la texture à la liste des textures
+			textures.push_back(t);
+
 		//Si la ligne commence par "f "
 		} else if (!line.compare(0, 2, "f ")) {
 			//Création d'un objet face
 			Face f;
 			//Entier pour récupérer le sommet et pour les entiers à ne pas prendre
-			int sommet, goawayint;
+			int sommet, texture, goawayint;
 
 			//On enlève le premier caractère
 			issLine >> goaway;
 
 			//On ajoute les sommets à la face
 			for (int i = 0; i < 3; i++) {
-				issLine >> sommet >> goaway >> goawayint >> goaway >> goawayint;
+				issLine >> sommet >> goaway >> texture >> goaway >> goawayint;
 				f.sommets[i] = sommet - 1;
+				f.textures[i] = texture - 1;
 			}
 
 			//On ajoute la face à la liste des faces
@@ -84,6 +101,16 @@ int Model::numberOfVertices() {
 //Renvoie le sommet à l'indice "index"
 Vec Model::getVerticeAt(int index) {
 	return vertices[index];
+}
+
+//Renvoie le nombre de textures
+int Model::numberOfTextures() {
+	return textures.size();
+}
+
+//Renvoie la texture à l'indice "index"
+Vec Model::getTextureAt(int index) {
+	return textures[index];
 }
 
 //Renvoie le nombre de faces
