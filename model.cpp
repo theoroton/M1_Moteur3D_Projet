@@ -80,7 +80,7 @@ Model::Model(const char *path) {
 			//On ajoute les sommets à la face
 			for (int i = 0; i < 3; i++) {
 				issLine >> sommet >> goaway >> texture >> goaway >> goawayint;
-				f.sommets[i] = sommet - 1;
+				f.vertices[i] = sommet - 1;
 				f.textures[i] = texture - 1;
 			}
 

@@ -3,6 +3,7 @@
 
 #include <cmath>
 #include <ctgmath>
+#include <vector>
 
 //Structure représentant un vecteur
 struct Vec {
@@ -39,17 +40,12 @@ struct Vec {
 		y = y / a;
 		z = z / a;
 	}
-
-	void toImageSize(int width, int height) {
-		x = int((x + 1.) * width / 2. + .5);
-		y = int((y + 1.) * height / 2. + .5);
-	}
 };
 
 //Structure représentant une face
 struct Face {
 	union {
-		int sommets[3];
+		int vertices[3];
 		struct {
 			int a, b, c;
 		};
@@ -61,6 +57,23 @@ struct Face {
 			int ta, tb, tc;
 		};
 	};
+};
+
+//Classe représentant une matrice
+class Matrix {
+public:
+	Matrix(int ro, int co);
+	static Matrix identityMatrix(int dim);
+	Matrix operator* (Matrix mat2);
+	std::vector<float> operator[](int index);
+	void set(int ro, int co, float val);
+	int nbRows();
+	int nbColumns();
+
+private:
+	int rows;
+	int columns;
+	std::vector<std::vector<float>> matr;
 };
 
 #endif
