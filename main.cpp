@@ -19,6 +19,7 @@ const TGAColor green = TGAColor(0, 128, 0, 255);
 //Taille de l'image
 const int width = 800;
 const int height = 800;
+const int depth = 255;
 
 //Modèle à afficher
 Model *modele;
@@ -67,7 +68,12 @@ void drawLine(int x0, int y0, int x1, int y1, TGAImage &image, TGAColor color) {
 	}
 }
 
-void drawTriangle(Vec A, Vec B, Vec C, Vec *textures, float intensity, float **z_buffer, TGAImage &image, TGAImage &texture) {
+void drawTriangle(Vec *vertices, Vec *textures, float intensity, float **z_buffer, TGAImage &image, TGAImage &texture) {
+	// Récupération des sommets
+	Vec A = vertices[0];
+	Vec B = vertices[1];
+	Vec C = vertices[2];
+
 	// Limites du triangle
 	int xMax = max(A.x, max(B.x, C.x));
 	int xMin = min(A.x, min(B.x, C.x));
@@ -79,7 +85,7 @@ void drawTriangle(Vec A, Vec B, Vec C, Vec *textures, float intensity, float **z
 
 		// Pour chaque y dans les limites du triangle
 		for (int y = yMin; y <= yMax; y++) {
-
+			
 			// Point P à tester
 			Vec P = { (float) x, (float) y, 0. };
 
@@ -103,9 +109,10 @@ void drawTriangle(Vec A, Vec B, Vec C, Vec *textures, float intensity, float **z
 				P.z += B.z * bary2;
 				P.z += C.z * bary3;
 
+
 				// Si le z est supérieur au z enregistré
 				if (P.z > z_buffer[x][y]) {
-					// On enregistre le z
+					// On enregistre le z dans le z_buffer
 					z_buffer[x][y] = P.z;
 
 					// Récupération de la texture
@@ -127,7 +134,48 @@ void drawTriangle(Vec A, Vec B, Vec C, Vec *textures, float intensity, float **z
 	}
 }
 
+// méthode qui transforme un vecteur 3D en matrice 4D en ajoutant 1 à la 4ième composante (formule 1)
+Matrix vectorToMatrix(Vec vec) {
+	Matrix mVec(4, 1);
 
+	mVec.set(0, 0, vec.x);
+	mVec.set(1, 0, vec.y);
+	mVec.set(2, 0, vec.z);
+	mVec.set(3, 0, 1);
+
+	return mVec;
+}
+
+// Méthode qui transforme une matrice 4D mat en un vecteur 3D en divisant chaque composante par la 4ième composante (formule 3)
+Vec matrixToVector(Matrix mat) {
+	Vec vMat;
+
+	vMat.x = mat[0][0] / mat[3][0];
+	vMat.y = mat[1][0] / mat[3][0];
+	vMat.z = mat[2][0] / mat[3][0];
+
+	return vMat;
+}
+
+// Viewport
+Matrix viewport(int x, int y, int w, int h) {
+	Matrix vp = Matrix::identityMatrix(4);
+
+	vp.set(0, 3, x + w / 2);
+	vp.set(1, 3, y + h / 2);
+	vp.set(2, 3, depth / 2);
+
+	vp.set(0, 0, w / 2);
+	vp.set(1, 1, h / 2);
+	vp.set(2, 2, depth / 2);
+
+	return vp;
+}
+
+Vec centralProjection(Vec point) {
+	float cameraDist = 1 - (point.z / 3);
+	return { point.x / cameraDist, point.y / cameraDist, point.z / cameraDist };
+}
 
 int main(int argc, char** argv) {
 	// Création de l'image
@@ -141,11 +189,20 @@ int main(int argc, char** argv) {
 	texture.read_tga_file("obj/african_head/african_head_diffuse.tga");
 	texture.flip_vertically();
 
+	// Face
 	Face f;
 	// Couleur
 	TGAColor color;
 	// Vecteur lumière
 	Vec light = { 0,0,-1 };
+	// Caméra
+	Vec camera = { 0,0,3 };
+	// Matrice de la projection
+	Matrix projection = Matrix::identityMatrix(4);
+	projection.set(3, 2, (-1 / camera.z));
+	// ViewPort
+	Matrix viewPort = viewport(width / 8, height / 8, width * 3 / 4, height * 3 / 4);
+	
 
 	// Initialisation z_buffer
 	float** z_buffer = new float*[width];
@@ -166,13 +223,14 @@ int main(int argc, char** argv) {
 		// On récupère la face
 		f = modele->getFaceAt(i);
 
-		// On récupère les 3 sommets composants la Face
-		Vec A = modele->getVerticeAt(f.a);
-		Vec B = modele->getVerticeAt(f.b);
-		Vec C = modele->getVerticeAt(f.c);
+		// Récupération des vecteurs représentant les sommets
+		Vec* vertices = new Vec[3];
+		for (int j = 0; j < 3; j++) {
+			vertices[j] = modele->getVerticeAt(f.vertices[j]);
+		}
 
 		// On calcule le vecteur normal du triangle
-		Vec normal = ((A - B) ^ (A - C));
+		Vec normal = ((vertices[0] - vertices[1]) ^ (vertices[1] - vertices[2]));
 
 		// On normalise ce vecteur
 		normal.normalize();
@@ -182,20 +240,18 @@ int main(int argc, char** argv) {
 
 		// Si l'intensité est supérieur à 0
 		if (intensity > 0) {
-			// On ajuste les coordonnées à la taille de l'image
-			A.toImageSize(width, height);
-			B.toImageSize(width, height);
-			C.toImageSize(width, height);
 
+			// Récupération des vecteurs représentant les textures et projection des sommets
 			Vec *textures = new Vec[3];
 			for (int j = 0; j < 3; j++) {
+				vertices[j] = matrixToVector(viewPort * projection * vectorToMatrix(vertices[j])); // (formule 2)
 				textures[j] = modele->getTextureAt(f.textures[j]);
 			}
 
 			// On crée la couleur
 			color = TGAColor(intensity * 255, intensity * 255, intensity * 255, 255);
 			// On dessine le triangle correspondant à la Face
-			drawTriangle(A, B, C, textures, intensity, z_buffer, image, texture);
+			drawTriangle(vertices, textures, intensity, z_buffer, image, texture);
 		}
 	}
 	
