@@ -1,4 +1,4 @@
 /.vs/
 *.exe
 *.o
-*.tga
+output.tga
