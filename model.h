@@ -16,8 +16,13 @@ public:
 
 	//Renvoie le nombre de textures
 	int numberOfTextures();
-	//Renvoie la texture ) l'indice "index"
+	//Renvoie la texture à l'indice "index"
 	Vec getTextureAt(int index);
+
+	//Renvoie le nombre de vecteurs normaux
+	int numberOfNormals();
+	//Renvoie le vecteur normal à l'indice "index"
+	Vec getNormalAt(int index);
 
 	//Renvoie le nombre de faces
 	int numberOfFaces();
@@ -29,6 +34,8 @@ private:
 	std::vector<Vec> vertices;
 	//Liste des textures
 	std::vector<Vec> textures;
+	//Liste des vecteurs normaux
+	std::vector<Vec> normals;
 	//Liste des faces
 	std::vector<Face> faces;
 };

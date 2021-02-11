@@ -34,11 +34,17 @@ struct Vec {
 		return (x * v2.x + y * v2.y + z * v2.z);
 	}
 
-	void normalize() {
-		float a = std::sqrt((x * x) + (y * y) + (z * z));
+	float norm() {
+		return std::sqrt((x * x) + (y * y) + (z * z));
+	}
+
+	Vec normalize() {
+		float a = norm();
 		x = x / a;
 		y = y / a;
 		z = z / a;
+
+		return { x,y,z };
 	}
 };
 
@@ -55,6 +61,13 @@ struct Face {
 		int textures[3];
 		struct {
 			int ta, tb, tc;
+		};
+	};
+	
+	union {
+		int normals[3];
+		struct {
+			int na, nb, nc;
 		};
 	};
 };

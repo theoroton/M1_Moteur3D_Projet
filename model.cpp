@@ -11,8 +11,6 @@ using namespace std;
 //Création du modèle à partir du fichier trouvé par "path"
 Model::Model(const char *path) {
 	ifstream file;
-	vertices.clear();
-	faces.clear();
 	
 	//Ouverture du fichier
 	file.open(path);
@@ -56,7 +54,7 @@ Model::Model(const char *path) {
 			//Création d'une texture
 			Vec t;
 
-			//On enlève le premier caractère
+			//On enlève les 2 premiers caractères
 			issLine >> goaway >> goaway;
 
 			//On ajoute les coordonnées de la texture
@@ -67,21 +65,37 @@ Model::Model(const char *path) {
 			//On ajoute la texture à la liste des textures
 			textures.push_back(t);
 
+		} else if (!line.compare(0, 3, "vn ")) {
+			//Création d'un vecteur normal
+			Vec n;
+
+			//On enlève les 2 premiers caractères
+			issLine >> goaway >> goaway;
+
+			//On ajoute les coordonnées du vecteur normal
+			for (int i = 0; i < 3; i++) {
+				issLine >> n.coords[i];
+			}
+
+			//On ajoute le vecteur normal à la liste des vecteurs normaux
+			normals.push_back(n);
+
 		//Si la ligne commence par "f "
 		} else if (!line.compare(0, 2, "f ")) {
 			//Création d'un objet face
 			Face f;
 			//Entier pour récupérer le sommet et pour les entiers à ne pas prendre
-			int sommet, texture, goawayint;
+			int sommet, texture, normal;
 
 			//On enlève le premier caractère
 			issLine >> goaway;
 
 			//On ajoute les sommets à la face
 			for (int i = 0; i < 3; i++) {
-				issLine >> sommet >> goaway >> texture >> goaway >> goawayint;
+				issLine >> sommet >> goaway >> texture >> goaway >> normal;
 				f.vertices[i] = sommet - 1;
 				f.textures[i] = texture - 1;
+				f.normals[i] = normal - 1;
 			}
 
 			//On ajoute la face à la liste des faces
@@ -111,6 +125,16 @@ int Model::numberOfTextures() {
 //Renvoie la texture à l'indice "index"
 Vec Model::getTextureAt(int index) {
 	return textures[index];
+}
+
+//Renvoie le nombre de vecteurs normaux
+int Model::numberOfNormals() {
+	return normals.size();
+}
+
+//Renvoie le vecteur normal à l'indice "index"
+Vec Model::getNormalAt(int index) {
+	return normals[index];
 }
 
 //Renvoie le nombre de faces

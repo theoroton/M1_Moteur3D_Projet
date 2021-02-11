@@ -124,7 +124,7 @@ void drawTriangle(Vec *vertices, Vec *textures, float intensity, float **z_buffe
 					color.b = color.b * intensity;
 					color.g = color.g * intensity;
 					color.r = color.r * intensity;
-					color.a = color.a * intensity;
+					color.a = color.a * intensity;				
 
 					// On affiche le pixel
 					image.set(x, y, color);
@@ -177,6 +177,25 @@ Vec centralProjection(Vec point) {
 	return { point.x / cameraDist, point.y / cameraDist, point.z / cameraDist };
 }
 
+// LookAt
+Matrix  lookAt(Vec camera, Vec center, Vec up) {
+	Vec z = (center - camera).normalize();
+	Vec x = (up ^ z).normalize();
+	Vec y = (z ^ x).normalize();
+
+	Matrix Minv = Matrix::identityMatrix(4);
+	Matrix Tr = Matrix::identityMatrix(4);
+
+	for (int i = 0; i < 3; i++) {
+		Minv.set(0, i, x.coords[i]);
+		Minv.set(1, i, y.coords[i]);
+		Minv.set(2, i, z.coords[i]);
+		Tr.set(i, 3, -center.coords[i]);
+	}
+
+	return (Minv * Tr);
+}
+
 int main(int argc, char** argv) {
 	// Création de l'image
 	TGAImage image(width, height, TGAImage::RGB);
@@ -194,14 +213,21 @@ int main(int argc, char** argv) {
 	// Couleur
 	TGAColor color;
 	// Vecteur lumière
-	Vec light = { 0,0,-1 };
+	Vec light = { 1,1,3 };
+	light.normalize();
 	// Caméra
-	Vec camera = { 0,0,3 };
+	Vec camera = { 1,1,3 };
+	// Centre
+	Vec center = { 0,0,0 };
+	// Up
+	Vec up = { 0,1,0 };
 	// Matrice de la projection
 	Matrix projection = Matrix::identityMatrix(4);
-	projection.set(3, 2, (-1 / camera.z));
+	projection.set(3, 2, (-1 / (center - camera).norm()));
 	// ViewPort
 	Matrix viewPort = viewport(width / 8, height / 8, width * 3 / 4, height * 3 / 4);
+	// ModelView
+	Matrix modelView = lookAt(camera, center, up);
 	
 
 	// Initialisation z_buffer
@@ -236,7 +262,7 @@ int main(int argc, char** argv) {
 		normal.normalize();
 
 		// On calcule l'intensité de la lumière
-		float intensity = -(normal * light);
+		float intensity = (normal * light);
 
 		// Si l'intensité est supérieur à 0
 		if (intensity > 0) {
@@ -244,7 +270,7 @@ int main(int argc, char** argv) {
 			// Récupération des vecteurs représentant les textures et projection des sommets
 			Vec *textures = new Vec[3];
 			for (int j = 0; j < 3; j++) {
-				vertices[j] = matrixToVector(viewPort * projection * vectorToMatrix(vertices[j])); // (formule 2)
+				vertices[j] = matrixToVector(viewPort * projection * modelView * vectorToMatrix(vertices[j])); // (formule 2)
 				textures[j] = modele->getTextureAt(f.textures[j]);
 			}
 
