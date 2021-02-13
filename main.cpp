@@ -24,51 +24,7 @@ const int depth = 255;
 //Modèle à afficher
 Model *modele;
 
-//Affichage d'un segment [(x0,y0) , (x1,y1)] de couleur 'color' sur l'image 'image'
-void drawLine(int x0, int y0, int x1, int y1, TGAImage &image, TGAColor color) {
-
-	bool steep = false;
-	if (abs(x0 - x1) < abs(y0 - y1)) {
-		swap(x0, y0);
-		swap(x1, y1);
-		steep = true; 
-	}
-
-	if (x0 > x1) {
-		swap(x0, x1);
-		swap(y0, y1);
-	}
-
-	int dx = x1 - x0;
-	int dy = y1 - y0;
-
-	int derror2 = abs(dy) * 2;
-	int error2 = 0;
-	int y = y0;
-
-	if (steep) {
-		for (int x = x0; x <= x1; ++x) {
-			image.set(y, x, color);
-			error2 += derror2;
-			if (error2 > dx) {
-				y += (y1 > y0 ? 1 : -1);
-				error2 -= dx * 2;
-			}
-		}
-	}
-	else {
-		for (int x = x0; x <= x1; ++x) {
-			image.set(x, y, color);
-			error2 += derror2;
-			if (error2 > dx) {
-				y += (y1 > y0 ? 1 : -1);
-				error2 -= dx * 2;
-			}
-		}
-	}
-}
-
-void drawTriangle(Vec *vertices, Vec *textures, float intensity, float **z_buffer, TGAImage &image, TGAImage &texture) {
+void drawTriangle(Vec *vertices, Vec *textures, float* intensities, float **z_buffer, TGAImage &image, TGAImage &texture) {
 	// Récupération des sommets
 	Vec A = vertices[0];
 	Vec B = vertices[1];
@@ -119,6 +75,8 @@ void drawTriangle(Vec *vertices, Vec *textures, float intensity, float **z_buffe
 					float u = bary1 * textures[0].x + bary2 * textures[1].x + bary3 * textures[2].x;
 					float v = bary1 * textures[0].y + bary2 * textures[1].y + bary3 * textures[2].y;
 					TGAColor color = texture.get(u * texture.get_width(), v * texture.get_height());
+
+					float intensity = bary1 * intensities[0] + bary2 * intensities[1] + bary3 * intensities[2];
 
 					// Multiplication des composantes
 					color.b = color.b * intensity;
@@ -213,10 +171,10 @@ int main(int argc, char** argv) {
 	// Couleur
 	TGAColor color;
 	// Vecteur lumière
-	Vec light = { 1,1,3 };
+	Vec light = { 0,0,1 };
 	light.normalize();
 	// Caméra
-	Vec camera = { 1,1,3 };
+	Vec camera = { 0,0,3 };
 	// Centre
 	Vec center = { 0,0,0 };
 	// Up
@@ -267,19 +225,27 @@ int main(int argc, char** argv) {
 		// Si l'intensité est supérieur à 0
 		if (intensity > 0) {
 
-			// Récupération des vecteurs représentant les textures et projection des sommets
+			// Récupération des vecteurs représentant les textures, les projection des sommets et les intensités aux sommets
 			Vec *textures = new Vec[3];
+			float *intensities = new float[3];
+			std::cout << f.vertices[0] << " - " << f.vertices[1] << " - " << f.vertices[2] << std::endl;
 			for (int j = 0; j < 3; j++) {
 				vertices[j] = matrixToVector(viewPort * projection * modelView * vectorToMatrix(vertices[j])); // (formule 2)
 				textures[j] = modele->getTextureAt(f.textures[j]);
+				Vec c = modele->getNormalAt(f.normals[j]);
+				intensities[j] = (modele->getNormalAt(f.normals[j])) * light;
+				cout << c.coords[0] << " " << c.coords[1] << " " << c.coords[2] << endl;
+				cout << intensities[j] << endl;
 			}
+			cout << endl;
 
-			// On crée la couleur
-			color = TGAColor(intensity * 255, intensity * 255, intensity * 255, 255);
 			// On dessine le triangle correspondant à la Face
-			drawTriangle(vertices, textures, intensity, z_buffer, image, texture);
+			drawTriangle(vertices, textures, intensities, z_buffer, image, texture);
 		}
+
 	}
+
+	std::cout << std::endl << light.x << " - " << light.y << " - " << light.z << std::endl;
 	
 	image.flip_vertically();
 	image.write_tga_file("output.tga");
