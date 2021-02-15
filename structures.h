@@ -14,6 +14,10 @@ struct Vec {
 		};
 	};
 
+	float operator[] (int index) {
+		return coords[index];
+	}
+
 	Vec operator- (Vec v2) { 
 		return { 
 			v2.x - x, 
