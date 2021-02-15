@@ -101,25 +101,17 @@ Vec barycenter(Vec A, Vec B, Vec C, Vec P) {
 
 
 // Méthode de shader
-TGAColor shader(float* intensities, Vec bary) {
+TGAColor shader(float* intensities, Vec bary, Vec* textures, TGAImage& texture) {
 	// Calcul de l'intensité
 	float intensity = bary[0] * intensities[0] + bary[1] * intensities[1] + bary[2] * intensities[2];
 
-	// 11 niveaux d'intensités
-	if (intensity > 0.9) { intensity = 1; }
-	else if (intensity > 0.8) { intensity = 0.9; }
-	else if (intensity > 0.7) { intensity = 0.8; }
-	else if (intensity > 0.6) { intensity = 0.7; }
-	else if (intensity > 0.5) { intensity = 0.6; }
-	else if (intensity > 0.4) { intensity = 0.5; }
-	else if (intensity > 0.3) { intensity = 0.4; }
-	else if (intensity > 0.2) { intensity = 0.3; }
-	else if (intensity > 0.1) { intensity = 0.2; }
-	else if (intensity > 0) { intensity = 0.1; }
-	else { intensity = 0; }
+	// Récupération de la texture
+	float u = bary[0] * textures[0].x + bary[1] * textures[1].x + bary[2] * textures[2].x;
+	float v = bary[0] * textures[0].y + bary[1] * textures[1].y + bary[2] * textures[2].y;
+	TGAColor color = texture.get(u * texture.get_width(), v * texture.get_height());
 
 	// Calcul de la couleur
-	return TGAColor(255, 155, 0) * intensity;
+	return color * intensity;
 }
 
 
@@ -160,7 +152,7 @@ void drawTriangle(Vec* vertices, Vec* textures, float* intensities, float** z_bu
 					z_buffer[x][y] = P.z;
 					
 					// Utilisation du shader
-					TGAColor color = shader(intensities, bary);
+					TGAColor color = shader(intensities, bary, textures, texture);
 
 					// On affiche le pixel
 					image.set(x, y, color);
