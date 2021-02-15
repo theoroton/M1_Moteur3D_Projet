@@ -8,6 +8,7 @@ Réalisé sur Visual Studio 2019
 - [Lesson 2 Triangle rasterization and back face culling](#lesson-2-triangle-rasterization-and-back-face-culling)
 - [Lesson 3 Hidden faces removal (z buffer)](#lesson-3-hidden-faces-removal-z-buffer)
 - [Lesson 4 Perspective projection](#lesson-4-perspective-projection)
+- [Lesson 5 Moving the camera](lesson-5-moving-the-camera)
 
 ## Lesson 1 Bresenham’s Line Drawing Algorithm
 
@@ -42,4 +43,13 @@ Réalisé sur Visual Studio 2019
 <p float="left">
   <img src="./images/l4_perspective_1.jpg" width="400" height="400" /> 
   <img src="./images/l4_perspective_2.jpg" width="400" height="400" />
+ </p>
+ 
+ ## Lesson 5 Moving the camera
+ 
+ - Mouvement de caméra : [code](https://github.com/theoroton/Moteur_3D/tree/901f63e1511faf5b44e710323ec45e495e10d663)
+ <p float="left">
+  <img src="./images/l5_cam_1.jpg" width="300" height="300" /> 
+  <img src="./images/l5_cam_2.jpg" width="300" height="300" />
+  <img src="./images/l5_cam_3.jpg" width="300" height="300" />
  </p>
