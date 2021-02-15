@@ -8,7 +8,8 @@ Réalisé sur Visual Studio 2019
 - [Lesson 2 Triangle rasterization and back face culling](#lesson-2-triangle-rasterization-and-back-face-culling)
 - [Lesson 3 Hidden faces removal (z buffer)](#lesson-3-hidden-faces-removal-z-buffer)
 - [Lesson 4 Perspective projection](#lesson-4-perspective-projection)
-- [Lesson 5 Moving the camera](lesson-5-moving-the-camera)
+- [Lesson 5 Moving the camera](#lesson-5-moving-the-camera)
+- [Lesson 6 Shaders for the software renderer](#lesson-6-shaders-for-the-software-renderer)
 
 ## Lesson 1 Bresenham’s Line Drawing Algorithm
 
@@ -53,3 +54,24 @@ Réalisé sur Visual Studio 2019
   <img src="./images/l5_cam_2.jpg" width="300" height="300" />
   <img src="./images/l5_cam_3.jpg" width="300" height="300" />
  </p>
+ 
+ ## Lesson 6 Shaders for the software renderer
+
+- Shaders
+  - Shader simple en blanc : [code](https://github.com/theoroton/Moteur_3D/tree/7d90632551cf2ca4b6cfb9cbb11f1985b00eae14)
+  <p float="left">
+    <img src="./images/l6_g1_1.jpg" width="400" height="400" /> 
+    <img src="./images/l6_g1_2.jpg" width="400" height="400" />
+  </p>
+  
+  - Shader avec niveaux d'intensités : [code](https://github.com/theoroton/Moteur_3D/tree/3faed7c1b5098359916eeb2e2980ad7253c41a51)
+  <p float="left">
+    <img src="./images/l6_g2_1.jpg" width="400" height="400" /> 
+    <img src="./images/l6_g2_2.jpg" width="400" height="400" />
+  </p>
+  
+  - Shader avec texture : [code](https://github.com/theoroton/Moteur_3D/tree/3c247e9ec23101a70e1e4a6d9ba10c105506d2a1)
+  <p float="left">
+    <img src="./images/l6_g3_1.jpg" width="400" height="400" /> 
+    <img src="./images/l6_g3_2.jpg" width="400" height="400" />
+  </p>
