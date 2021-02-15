@@ -1,6 +1,7 @@
 # Moteur 3D
 
 Mon implémentation du moteur de rendu 3D : https://github.com/ssloy/tinyrenderer
+Réalisé sur Visual Studio 2019
 
 ## Lesson 1 Bresenham’s Line Drawing Algorithm :
 
@@ -20,3 +21,11 @@ Mon implémentation du moteur de rendu 3D : https://github.com/ssloy/tinyrendere
 
 - Ajout de la lumière sur le modèle : [code](https://github.com/theoroton/Moteur_3D/tree/ff83f128228e698509f99d57f049358bf93aa064)
 <img src="./images/l2_light.jpg" width="400" height="400" />
+
+## Lesson 3 Hidden faces removal (z buffer)
+
+- Z buffer : [code](https://github.com/theoroton/Moteur_3D/tree/2d219f0ff74c3f18eb698ab0d9f2420fb47cc677)
+<img src="./images/l3_zbuffer.jpg" width="400" height="400" />
+
+- Affichage des textures : [code](https://github.com/theoroton/Moteur_3D/tree/394c523e92cc7ed7e8098dbdfcfb0b0392bfee90)
+<img src="./images/l3_textures.jpg" width="400" height="400" />
