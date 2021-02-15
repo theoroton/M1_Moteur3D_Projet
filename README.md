@@ -22,10 +22,18 @@ Réalisé sur Visual Studio 2019
 - Ajout de la lumière sur le modèle : [code](https://github.com/theoroton/Moteur_3D/tree/ff83f128228e698509f99d57f049358bf93aa064)
 <img src="./images/l2_light.jpg" width="400" height="400" />
 
-## Lesson 3 Hidden faces removal (z buffer)
+## Lesson 3 Hidden faces removal (z buffer) :
 
 - Z buffer : [code](https://github.com/theoroton/Moteur_3D/tree/2d219f0ff74c3f18eb698ab0d9f2420fb47cc677)
 <img src="./images/l3_zbuffer.jpg" width="400" height="400" />
 
 - Affichage des textures : [code](https://github.com/theoroton/Moteur_3D/tree/394c523e92cc7ed7e8098dbdfcfb0b0392bfee90)
 <img src="./images/l3_textures.jpg" width="400" height="400" />
+
+## Lesson 4 Perspective projection :
+
+- Projection : [code](https://github.com/theoroton/Moteur_3D/tree/165a4b334f6f2b1e587c3c6502ce2fd8b55ee630) 
+<p float="left">
+  <img src="./images/l4_perspective_1.jpg" width="400" height="400" /> 
+  <img src="./images/l4_perspective_2.jpg" width="400" height="400" />
+ </p>
