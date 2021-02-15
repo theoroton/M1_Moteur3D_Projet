@@ -105,8 +105,21 @@ TGAColor shader(float* intensities, Vec bary) {
 	// Calcul de l'intensité
 	float intensity = bary[0] * intensities[0] + bary[1] * intensities[1] + bary[2] * intensities[2];
 
+	// 11 niveaux d'intensités
+	if (intensity > 0.9) { intensity = 1; }
+	else if (intensity > 0.8) { intensity = 0.9; }
+	else if (intensity > 0.7) { intensity = 0.8; }
+	else if (intensity > 0.6) { intensity = 0.7; }
+	else if (intensity > 0.5) { intensity = 0.6; }
+	else if (intensity > 0.4) { intensity = 0.5; }
+	else if (intensity > 0.3) { intensity = 0.4; }
+	else if (intensity > 0.2) { intensity = 0.3; }
+	else if (intensity > 0.1) { intensity = 0.2; }
+	else if (intensity > 0) { intensity = 0.1; }
+	else { intensity = 0; }
+
 	// Calcul de la couleur
-	return TGAColor(255, 255, 255) * intensity;
+	return TGAColor(255, 155, 0) * intensity;
 }
 
 

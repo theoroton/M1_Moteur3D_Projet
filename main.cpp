@@ -28,7 +28,7 @@ Model *modele;
 
 
 //Vecteurs
-Vec light = { 0,0,1 };
+Vec light = { 3,3,3 };
 Vec camera = { 1,1,3 };
 Vec center = { 0,0,0 };
 Vec up = { 0,1,0 };
