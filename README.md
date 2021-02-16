@@ -78,3 +78,6 @@ Réalisé sur Visual Studio 2019
   
 - Normal mapping : [code](https://github.com/theoroton/Moteur_3D/tree/c2e9c89eab3879acb6c707efa1f6b142d185e368)
 <img src="./images/l6_normal.jpg" width="400" height="400" />
+
+- Specular mapping : [code](https://github.com/theoroton/Moteur_3D/tree/da5da08fd8aaa9530dfd7362239a3e1e8a5abd1e)
+<img src="./images/l6_spec.jpg" width="400" height="400" />
