@@ -11,6 +11,12 @@ Matrix modelview(Vec camera, Vec center, Vec up);
 Matrix vectorToMatrix(Vec vec);
 Vec matrixToVector(Matrix mat);
 
-void drawTriangle(Vec* vertices, Vec* textures, float* intensities, float** z_buffer, TGAImage& image, TGAImage& texture);
+struct IShader {
+	virtual ~IShader();
+	virtual Vec vertex(Face f, int nbV) = 0;
+	virtual TGAColor getTexture(Vec bary) = 0;
+};
+
+void drawTriangle(Vec* vertices, IShader& shader, float** z_buffer, TGAImage& image);
 
 #endif

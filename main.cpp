@@ -40,6 +40,40 @@ Matrix Projection = projection((-1 / (center - camera).norm()));
 Matrix Modelview = modelview(camera, center, up);
 
 
+// Texture
+TGAImage textureImg;
+TGAImage normalImg;
+
+
+struct TextureShader : public IShader {
+	// Récupération des vecteurs représentant les textures, les projection des sommets et les intensités aux sommets
+	Vec* textures = new Vec[3];
+	float* intensities = new float[3];
+
+	virtual Vec vertex(Face f, int nbV) {
+		// Récupération de la texture au sommet
+		textures[nbV] = modele->getTextureAt(f.textures[nbV]);
+		// Récupération de l'intensité au sommet
+		intensities[nbV] = (modele->getNormalAt(f.normals[nbV])) * light;
+
+		// Sommet et projection dans le plan
+		return matrixToVector(Viewport * Projection * Modelview * vectorToMatrix(modele->getVerticeAt(f.vertices[nbV]))); // (formule 2)
+	}
+
+	virtual TGAColor getTexture(Vec bary) {
+		// Calcul de l'intensité
+		float intensity = bary[0] * intensities[0] + bary[1] * intensities[1] + bary[2] * intensities[2];
+
+		// Récupération de la texture
+		float u = bary[0] * textures[0].x + bary[1] * textures[1].x + bary[2] * textures[2].x;
+		float v = bary[0] * textures[0].y + bary[1] * textures[1].y + bary[2] * textures[2].y;
+		TGAColor color = textureImg.get(u * textureImg.get_width(), v * textureImg.get_height());
+
+		// Calcul de la couleur
+		return color * intensity;
+	}
+};
+
 int main(int argc, char** argv) {
 	// Création de l'image
 	TGAImage image(width, height, TGAImage::RGB);
@@ -47,10 +81,13 @@ int main(int argc, char** argv) {
 	// Création du modèle à afficher
 	modele = new Model("obj/african_head/african_head.obj");
 
-	// Création et récupération de la texture du modèle
-	TGAImage texture;
-	texture.read_tga_file("obj/african_head/african_head_diffuse.tga");
-	texture.flip_vertically();
+	// Récupération de la texture du modèle
+	textureImg.read_tga_file("obj/african_head/african_head_diffuse.tga");
+	textureImg.flip_vertically();
+
+	// Récupération de la texture normal du modèle
+	normalImg.read_tga_file("obj/african_head/african_head_nm.tga");
+	normalImg.flip_vertically();
 
 
 	// Normalisation du vecteur lumière
@@ -72,6 +109,8 @@ int main(int argc, char** argv) {
 
 	// Face
 	Face f;
+	// Shader
+	TextureShader shader;
 
 	// Pour chaque Face du modèle
 	for (int i = 0; i < modele->numberOfFaces(); i++) {
@@ -80,26 +119,15 @@ int main(int argc, char** argv) {
 
 		// Récupération des vecteurs représentant les sommets
 		Vec* vertices = new Vec[3];
-		for (int j = 0; j < 3; j++) {
-			vertices[j] = modele->getVerticeAt(f.vertices[j]);
-		}
-
-		// Récupération des vecteurs représentant les textures, les projection des sommets et les intensités aux sommets
-		Vec *textures = new Vec[3];
-		float *intensities = new float[3];
 
 		// Pour chaque sommet de la face
 		for (int j = 0; j < 3; j++) {
 			// Récupération du sommet et projection dans le plan
-			vertices[j] = matrixToVector(Viewport * Projection * Modelview * vectorToMatrix(vertices[j])); // (formule 2)
-			// Récupération de la texture au sommet
-			textures[j] = modele->getTextureAt(f.textures[j]);
-			// Récupération de l'intensité au sommet
-			intensities[j] = (modele->getNormalAt(f.normals[j])) * light;
+			vertices[j] = shader.vertex(f, j); 
 		}
 
 		// On dessine le triangle correspondant à la Face
-		drawTriangle(vertices, textures, intensities, z_buffer, image, texture);
+		drawTriangle(vertices, shader, z_buffer, image);
 
 	}
 	

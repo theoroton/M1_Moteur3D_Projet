@@ -10,6 +10,8 @@
 
 using namespace std;
 
+IShader::~IShader() {};
+
 // Viewport
 Matrix viewport(int x, int y, int w, int h, int d) {
 	Matrix vp = Matrix::identityMatrix(4);
@@ -100,23 +102,8 @@ Vec barycenter(Vec A, Vec B, Vec C, Vec P) {
 }
 
 
-// Méthode de shader
-TGAColor shader(float* intensities, Vec bary, Vec* textures, TGAImage& texture) {
-	// Calcul de l'intensité
-	float intensity = bary[0] * intensities[0] + bary[1] * intensities[1] + bary[2] * intensities[2];
-
-	// Récupération de la texture
-	float u = bary[0] * textures[0].x + bary[1] * textures[1].x + bary[2] * textures[2].x;
-	float v = bary[0] * textures[0].y + bary[1] * textures[1].y + bary[2] * textures[2].y;
-	TGAColor color = texture.get(u * texture.get_width(), v * texture.get_height());
-
-	// Calcul de la couleur
-	return color * intensity;
-}
-
-
 // Méthode pour afficher un triangle
-void drawTriangle(Vec* vertices, Vec* textures, float* intensities, float** z_buffer, TGAImage& image, TGAImage& texture) {
+void drawTriangle(Vec* vertices, IShader& shader, float** z_buffer, TGAImage& image) {
 
 	// Récupération des sommets
 	Vec A = vertices[0];
@@ -152,7 +139,7 @@ void drawTriangle(Vec* vertices, Vec* textures, float* intensities, float** z_bu
 					z_buffer[x][y] = P.z;
 					
 					// Utilisation du shader
-					TGAColor color = shader(intensities, bary, textures, texture);
+					TGAColor color = shader.getTexture(bary);
 
 					// On affiche le pixel
 					image.set(x, y, color);
