@@ -75,3 +75,6 @@ Réalisé sur Visual Studio 2019
     <img src="./images/l6_g3_1.jpg" width="400" height="400" /> 
     <img src="./images/l6_g3_2.jpg" width="400" height="400" />
   </p>
+  
+- Normal mapping : [code](https://github.com/theoroton/Moteur_3D/tree/c2e9c89eab3879acb6c707efa1f6b142d185e368)
+<img src="./images/l6_normal.jpg" width="400" height="400" />
