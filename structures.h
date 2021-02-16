@@ -38,6 +38,10 @@ struct Vec {
 		return (x * v2.x + y * v2.y + z * v2.z);
 	}
 
+	Vec operator* (float f){
+		return { x * f, y * f, z * f };
+	}
+
 	float norm() {
 		return std::sqrt((x * x) + (y * y) + (z * z));
 	}

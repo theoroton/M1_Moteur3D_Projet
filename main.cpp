@@ -28,7 +28,7 @@ Model *modele;
 
 
 //Vecteurs
-Vec light = { 3,3,3 };
+Vec light = { 1,1,3 };
 Vec camera = { 1,1,3 };
 Vec center = { 0,0,0 };
 Vec up = { 0,1,0 };
@@ -40,9 +40,10 @@ Matrix Projection = projection((-1 / (center - camera).norm()));
 Matrix Modelview = modelview(camera, center, up);
 
 
-// Texture
+// Textures
 TGAImage textureImg;
 TGAImage normalImg;
+TGAImage specImg;
 
 
 struct TextureShader : public IShader {
@@ -67,19 +68,27 @@ struct TextureShader : public IShader {
 		TGAColor colorNormal = normalImg.get(u * normalImg.get_width(), v * normalImg.get_height());
 
 		// Création vecteur normal
-		Vec normal = { (float)colorNormal[2]/255.f * 2.f - 1.f, (float)colorNormal[1]/255.f * 2.f - 1.f, (float)colorNormal[0]/255.f * 2.f - 1.f };
+		Vec normal;
+		for (int i = 0; i < 3; i++) {
+			normal.coords[i] = (float)colorNormal[2-i] / 255.f * 2.f - 1.f;
+		}
 
 		Vec n = matrixToVector(MIT * vectorToMatrix(normal)).normalize();
 		Vec l = matrixToVector(M * vectorToMatrix(light)).normalize();
+		Vec r = (l - (n * 2 * (n * l))).normalize();
+
 		
 		// Calcul de l'intensité
-		float intensity = max(0.f, n * l);
+		float diff = max(0.f, n * l);
+		float spec = pow(max(r.z, 0.0f), specImg.get(u * specImg.get_width(), v * specImg.get_height())[0]/1.f);
 
 		// Couleur
 		TGAColor color = textureImg.get(u * textureImg.get_width(), v * textureImg.get_height());
 
+		for (int i = 0; i < 3; i++) color[i] = min<float>(5 + color[i] * (diff + .6 * spec), 255);
+
 		// Calcul de la couleur
-		return color * intensity;
+		return color;
 	}
 };
 
@@ -97,6 +106,10 @@ int main(int argc, char** argv) {
 	// Récupération de la texture normal du modèle
 	normalImg.read_tga_file("obj/african_head/african_head_nm.tga");
 	normalImg.flip_vertically();
+
+	// Récupération de la texture spec du modèle
+	specImg.read_tga_file("obj/african_head/african_head_spec.tga");
+	specImg.flip_vertically();
 
 
 	// Normalisation du vecteur lumière
