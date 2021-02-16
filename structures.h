@@ -82,6 +82,8 @@ public:
 	Matrix(int ro, int co);
 	static Matrix identityMatrix(int dim);
 	Matrix operator* (Matrix mat2);
+	Matrix transpose();
+	Matrix inverse();
 	std::vector<float> operator[](int index);
 	void set(int ro, int co, float val);
 	int nbRows();

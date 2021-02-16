@@ -48,25 +48,34 @@ TGAImage normalImg;
 struct TextureShader : public IShader {
 	// Récupération des vecteurs représentant les textures, les projection des sommets et les intensités aux sommets
 	Vec* textures = new Vec[3];
-	float* intensities = new float[3];
+
+	Matrix M = Projection * Modelview;
+	Matrix MIT = (M.transpose()).inverse();
 
 	virtual Vec vertex(Face f, int nbV) {
 		// Récupération de la texture au sommet
 		textures[nbV] = modele->getTextureAt(f.textures[nbV]);
-		// Récupération de l'intensité au sommet
-		intensities[nbV] = (modele->getNormalAt(f.normals[nbV])) * light;
 
 		// Sommet et projection dans le plan
 		return matrixToVector(Viewport * Projection * Modelview * vectorToMatrix(modele->getVerticeAt(f.vertices[nbV]))); // (formule 2)
 	}
 
 	virtual TGAColor getTexture(Vec bary) {
-		// Calcul de l'intensité
-		float intensity = bary[0] * intensities[0] + bary[1] * intensities[1] + bary[2] * intensities[2];
-
-		// Récupération de la texture
+		// Récupération de la texture normale
 		float u = bary[0] * textures[0].x + bary[1] * textures[1].x + bary[2] * textures[2].x;
 		float v = bary[0] * textures[0].y + bary[1] * textures[1].y + bary[2] * textures[2].y;
+		TGAColor colorNormal = normalImg.get(u * normalImg.get_width(), v * normalImg.get_height());
+
+		// Création vecteur normal
+		Vec normal = { (float)colorNormal[2]/255.f * 2.f - 1.f, (float)colorNormal[1]/255.f * 2.f - 1.f, (float)colorNormal[0]/255.f * 2.f - 1.f };
+
+		Vec n = matrixToVector(MIT * vectorToMatrix(normal)).normalize();
+		Vec l = matrixToVector(M * vectorToMatrix(light)).normalize();
+		
+		// Calcul de l'intensité
+		float intensity = max(0.f, n * l);
+
+		// Couleur
 		TGAColor color = textureImg.get(u * textureImg.get_width(), v * textureImg.get_height());
 
 		// Calcul de la couleur
