@@ -11,6 +11,7 @@ Réalisé sur Visual Studio 2019
 - [Lesson 5 Moving the camera](#lesson-5-moving-the-camera)
 - [Lesson 6 Shaders for the software renderer](#lesson-6-shaders-for-the-software-renderer)
 - [Affichage des yeux sur le modele](#affichage-des-yeux-sur-le-modele)
+- [Images version actuelle](#images-version-actuelle)
 
 ## Lesson 1 Bresenham’s Line Drawing Algorithm
 
