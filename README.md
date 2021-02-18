@@ -10,6 +10,7 @@ Réalisé sur Visual Studio 2019
 - [Lesson 4 Perspective projection](#lesson-4-perspective-projection)
 - [Lesson 5 Moving the camera](#lesson-5-moving-the-camera)
 - [Lesson 6 Shaders for the software renderer](#lesson-6-shaders-for-the-software-renderer)
+- [Affichage des yeux sur le modele](#affichage-des-yeux-sur-le-modele)
 
 ## Lesson 1 Bresenham’s Line Drawing Algorithm
 
@@ -81,3 +82,8 @@ Réalisé sur Visual Studio 2019
 
 - Specular mapping : [code](https://github.com/theoroton/Moteur_3D/tree/da5da08fd8aaa9530dfd7362239a3e1e8a5abd1e)
 <img src="./images/l6_spec.jpg" width="400" height="400" />
+
+## Affichage des yeux sur le modele
+
+- Affichage des yeux : [code](https://github.com/theoroton/Moteur_3D/tree/1dbd4b648eda8f235f981754456fef09a5d42888)
+<img src="./images/yeux.jpg" width="400" height="400"/>
