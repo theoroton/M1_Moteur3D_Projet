@@ -87,3 +87,14 @@ Réalisé sur Visual Studio 2019
 
 - Affichage des yeux : [code](https://github.com/theoroton/Moteur_3D/tree/1dbd4b648eda8f235f981754456fef09a5d42888)
 <img src="./images/yeux.jpg" width="400" height="400"/>
+
+## Images version actuelle
+
+  <p float="left">
+    <img src="./images/fin_1.jpg" width="300" height="300" /> 
+    <img src="./images/fin_2.jpg" width="300" height="300" />
+    <img src="./images/fin_3.jpg" width="300" height="300" />
+    <img src="./images/fin_4.jpg" width="300" height="300" /> 
+    <img src="./images/fin_5.jpg" width="300" height="300" />
+    <img src="./images/fin_6.jpg" width="300" height="300" />
+  </p>
