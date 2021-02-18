@@ -5,15 +5,28 @@
 #include <iostream>
 #include <cstdio>
 #include <vector>
+#include <cstring>
 
 using namespace std;
 
 //Création du modèle à partir du fichier trouvé par "path"
-Model::Model(const char *path) {
+Model::Model(const string path) {
 	ifstream file;
+
+	// Récupération de la texture du modèle
+	textureImg.read_tga_file((path + "_diffuse.tga").c_str());
+	textureImg.flip_vertically();
+
+	// Récupération de la texture normal du modèle
+	normalImg.read_tga_file((path + "_nm.tga").c_str());
+	normalImg.flip_vertically();
+
+	// Récupération de la texture spec du modèle
+	specImg.read_tga_file((path + "_spec.tga").c_str());
+	specImg.flip_vertically();
 	
 	//Ouverture du fichier
-	file.open(path);
+	file.open((path + ".obj").c_str());
 	//Si le fichier ne s'ouvre pas on affiche une erreur
 	if (!file.is_open()) { 
 		cerr << "Erreur lors de l'ouverture du fichier";
@@ -145,4 +158,19 @@ int Model::numberOfFaces() {
 //Renvoie la face à l'indice "index"
 Face Model::getFaceAt(int index) {
 	return faces[index];
+}
+
+//Renvoie la couleur de l'image texture à la position (u,v)
+TGAColor Model::getColorAtTextureImg(float u, float v) {
+	return textureImg.get(u * textureImg.get_width(), v * textureImg.get_height());
+}
+
+//Renvoie la couleur de l'image normal à la position (u,v)
+TGAColor Model::getColorAtNormalImg(float u, float v) {
+	return normalImg.get(u * normalImg.get_width(), v * normalImg.get_height());
+}
+
+//Renvoie la couleur de l'image spec à la position (u,v)
+TGAColor Model::getColorAtSpecImg(float u, float v) {
+	return specImg.get(u * specImg.get_width(), v * specImg.get_height());
 }

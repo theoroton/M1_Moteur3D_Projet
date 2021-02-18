@@ -10,6 +10,7 @@
 #include <iostream>
 #include <cmath>
 #include <ctgmath>
+#include <string>
 
 using namespace std;
 
@@ -18,13 +19,13 @@ const TGAColor white = TGAColor(255, 255, 255, 255);
 
 
 //Taille de l'image
-const int width = 800;
-const int height = 800;
+const int width = 1024;
+const int height = 1024;
 const int depth = 255;
 
 
 //Modèle à afficher
-Model *modele;
+Model *model;
 
 
 //Vecteurs
@@ -40,12 +41,6 @@ Matrix Projection = projection((-1 / (center - camera).norm()));
 Matrix Modelview = modelview(camera, center, up);
 
 
-// Textures
-TGAImage textureImg;
-TGAImage normalImg;
-TGAImage specImg;
-
-
 struct TextureShader : public IShader {
 	// Récupération des vecteurs représentant les textures, les projection des sommets et les intensités aux sommets
 	Vec* textures = new Vec[3];
@@ -55,17 +50,17 @@ struct TextureShader : public IShader {
 
 	virtual Vec vertex(Face f, int nbV) {
 		// Récupération de la texture au sommet
-		textures[nbV] = modele->getTextureAt(f.textures[nbV]);
+		textures[nbV] = model->getTextureAt(f.textures[nbV]);
 
 		// Sommet et projection dans le plan
-		return matrixToVector(Viewport * Projection * Modelview * vectorToMatrix(modele->getVerticeAt(f.vertices[nbV]))); // (formule 2)
+		return matrixToVector(Viewport * Projection * Modelview * vectorToMatrix(model->getVerticeAt(f.vertices[nbV]))); // (formule 2)
 	}
 
 	virtual TGAColor getTexture(Vec bary) {
 		// Récupération de la texture normale
 		float u = bary[0] * textures[0].x + bary[1] * textures[1].x + bary[2] * textures[2].x;
 		float v = bary[0] * textures[0].y + bary[1] * textures[1].y + bary[2] * textures[2].y;
-		TGAColor colorNormal = normalImg.get(u * normalImg.get_width(), v * normalImg.get_height());
+		TGAColor colorNormal = model->getColorAtNormalImg(u, v);
 
 		// Création vecteur normal
 		Vec normal;
@@ -80,37 +75,62 @@ struct TextureShader : public IShader {
 		
 		// Calcul de l'intensité
 		float diff = max(0.f, n * l);
-		float spec = pow(max(r.z, 0.0f), specImg.get(u * specImg.get_width(), v * specImg.get_height())[0]/1.f);
+		float spec = pow(max(r.z, 0.0f), model->getColorAtSpecImg(u, v)[0]);
 
 		// Couleur
-		TGAColor color = textureImg.get(u * textureImg.get_width(), v * textureImg.get_height());
+		TGAColor color = model->getColorAtTextureImg(u, v);
 
-		for (int i = 0; i < 3; i++) color[i] = min<float>(5 + color[i] * (diff + .6 * spec), 255);
+		//Coefficients
+		float coeffAmbient = 5;
+		float coeffDiffuse = 1;
+		float coeffSpecular = 0.6;
+
+		for (int i = 0; i < 3; i++) {
+			color[i] = min<float>(coeffAmbient + color[i] * (coeffDiffuse * diff + coeffSpecular * spec), 255);
+		}
 
 		// Calcul de la couleur
 		return color;
 	}
 };
 
+
+void renderModel(string stringModel, IShader& shader, float** z_buffer, TGAImage& image) {
+
+	// Création du modèle à afficher
+	model = new Model(stringModel);
+
+	// Face
+	Face f;
+
+	// Pour chaque Face du modèle
+	for (int i = 0; i < model->numberOfFaces(); i++) {
+		// On récupère la face
+		f = model->getFaceAt(i);
+
+		// Récupération des vecteurs représentant les sommets
+		Vec* vertices = new Vec[3];
+
+		// Pour chaque sommet de la face
+		for (int j = 0; j < 3; j++) {
+			// Récupération du sommet et projection dans le plan
+			vertices[j] = shader.vertex(f, j);
+		}
+
+		// On dessine le triangle correspondant à la Face
+		drawTriangle(vertices, shader, z_buffer, image);
+
+	}
+
+}
+
+
 int main(int argc, char** argv) {
 	// Création de l'image
 	TGAImage image(width, height, TGAImage::RGB);
 
-	// Création du modèle à afficher
-	modele = new Model("obj/african_head/african_head.obj");
-
-	// Récupération de la texture du modèle
-	textureImg.read_tga_file("obj/african_head/african_head_diffuse.tga");
-	textureImg.flip_vertically();
-
-	// Récupération de la texture normal du modèle
-	normalImg.read_tga_file("obj/african_head/african_head_nm.tga");
-	normalImg.flip_vertically();
-
-	// Récupération de la texture spec du modèle
-	specImg.read_tga_file("obj/african_head/african_head_spec.tga");
-	specImg.flip_vertically();
-
+	// Shader
+	TextureShader shader;
 
 	// Normalisation du vecteur lumière
 	light.normalize();
@@ -129,29 +149,8 @@ int main(int argc, char** argv) {
 		}
 	}
 
-	// Face
-	Face f;
-	// Shader
-	TextureShader shader;
-
-	// Pour chaque Face du modèle
-	for (int i = 0; i < modele->numberOfFaces(); i++) {
-		// On récupère la face
-		f = modele->getFaceAt(i);
-
-		// Récupération des vecteurs représentant les sommets
-		Vec* vertices = new Vec[3];
-
-		// Pour chaque sommet de la face
-		for (int j = 0; j < 3; j++) {
-			// Récupération du sommet et projection dans le plan
-			vertices[j] = shader.vertex(f, j); 
-		}
-
-		// On dessine le triangle correspondant à la Face
-		drawTriangle(vertices, shader, z_buffer, image);
-
-	}
+	renderModel("obj/african_head/african_head", shader, z_buffer, image);
+	renderModel("obj/african_head/african_head_eye_inner", shader, z_buffer, image);
 	
 	// Création de l'image TGA
 	image.flip_vertically();
